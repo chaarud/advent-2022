@@ -1012,79 +1012,57 @@ $ cd vsztsjfh
 $ ls
 215479 ffwlcrwb"""
 
-val sample = """$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k"""
+@main
+def main() = {
 
-val lsPattern = """\$ ls""".r
-val cdRootPattern = """\$ cd /""".r
-val cdBackPattern = """\$ cd ..""".r
-val cdForwardPattern = """\$ cd ([a-zA-Z]+)""".r
-val dirPattern = """dir ([a-zA-Z]+)""".r
-val filePattern = """(\d+) ([a-zA-Z.]+)""".r
+  val lsPattern = """\$ ls""".r
+  val cdRootPattern = """\$ cd /""".r
+  val cdBackPattern = """\$ cd ..""".r
+  val cdForwardPattern = """\$ cd ([a-zA-Z]+)""".r
+  val dirPattern = """dir ([a-zA-Z]+)""".r
+  val filePattern = """(\d+) ([a-zA-Z.]+)""".r
 
-val (files, _) = input.linesIterator.foldLeft((List.empty[(String, Int, List[String])], List.empty[String])) { (state, line) =>
-  val (files, currentPath) = state
-  //  println(s"current line: [$line]. current files tracked: ${files.size}. current path: [${currentPath.mkString(",")}]")
-  line match {
-    case lsPattern() => state
-    case cdRootPattern() => (files, List("/"))
-    case cdBackPattern() => (files, currentPath.tail)
-    case cdForwardPattern(dirName) => (files, (currentPath.head + dirName) :: currentPath)
-    case dirPattern(_) => state
-    case filePattern(size, fileName) => ((fileName, size.toInt, currentPath) :: files, currentPath)
-    case l =>
-      println(s"unknown input line: $l")
-      state
+  val (files, _) = input.linesIterator.foldLeft((List.empty[(String, Int, List[String])], List.empty[String])) { (state, line) =>
+    val (files, currentPath) = state
+    //  println(s"current line: [$line]. current files tracked: ${files.size}. current path: [${currentPath.mkString(",")}]")
+    line match {
+      case lsPattern() => state
+      case cdRootPattern() => (files, List("/"))
+      case cdBackPattern() => (files, currentPath.tail)
+      case cdForwardPattern(dirName) => (files, (currentPath.head + dirName) :: currentPath)
+      case dirPattern(_) => state
+      case filePattern(size, fileName) => ((fileName, size.toInt, currentPath) :: files, currentPath)
+      case l =>
+        println(s"unknown input line: $l")
+        state
+    }
   }
-}
 
-//println(s"sample of files: ${files.take(10).mkString("\n")}")
+  //println(s"sample of files: ${files.take(10).mkString("\n")}")
 
-val dirSizes = files.foldLeft(Map.empty[String, Int]) { (dirs, file) =>
-  val (_, fileSize, containingDirs) = file
-  containingDirs.foldLeft(dirs) { (dirs, containingDir) =>
-    val containingDirSize: Int = dirs.getOrElse(containingDir, 0) + fileSize
-    dirs + (containingDir -> containingDirSize)
+  val dirSizes = files.foldLeft(Map.empty[String, Int]) { (dirs, file) =>
+    val (_, fileSize, containingDirs) = file
+    containingDirs.foldLeft(dirs) { (dirs, containingDir) =>
+      val containingDirSize: Int = dirs.getOrElse(containingDir, 0) + fileSize
+      dirs + (containingDir -> containingDirSize)
+    }
   }
+
+  //println(s"sample of dirs: ${dirSizes.toSeq.sortBy(_._2).take(30).mkString("\n")}")
+
+  val sum = dirSizes.toSeq.map(_._2).filter(_ <= 100000).sum
+
+  println(s"sum: $sum")
+
+  val spaceTotal = 70000000
+  val spaceNeeded = 30000000
+  val spaceUsed = dirSizes("/")
+  val spaceFree = spaceTotal - spaceUsed
+  val spaceToClear = spaceNeeded - spaceFree
+
+  val dirToDelete = dirSizes.toSeq.sortBy(_._2).find(_._2 >= spaceToClear)
+
+  //println(s"${dirSizes.toSeq.sortBy(_._2).slice(0, 10).mkString("\n")}")
+
+  println(s"size of directory to delete: ${dirToDelete.get._2}")
 }
-
-//println(s"sample of dirs: ${dirSizes.toSeq.sortBy(_._2).take(30).mkString("\n")}")
-
-val sum = dirSizes.toSeq.map(_._2).filter(_ <= 100000).sum
-
-println(s"sum: $sum")
-
-val spaceTotal = 70000000
-val spaceNeeded = 30000000
-val spaceUsed = dirSizes("/")
-val spaceFree = spaceTotal - spaceUsed
-println(s"Free space: $spaceFree. Needed space: $spaceNeeded")
-val spaceToClear = spaceNeeded - spaceFree
-println(s"Space that we need to clear up: $spaceToClear")
-
-val dirToDelete = dirSizes.toSeq.sortBy(_._2).find(_._2 >= spaceToClear)
-
-println(s"${dirSizes.toSeq.sortBy(_._2).slice(0, 10).mkString("\n")}")
-
-println(s"dir to delete: $dirToDelete")
