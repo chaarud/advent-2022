@@ -13,17 +13,17 @@ def main() = {
   def getNewPos(newHeadPos: (Int, Int), tailPos: (Int, Int)): (Int, Int) = {
     (newHeadPos._1 - tailPos._1, newHeadPos._2 - tailPos._2) match {
       // Some of these will never crop up, but just want to cover more to be safe
-      case (0, 0) => tailPos
-      case (1, 0) | (-1, 0) | (0, 1) | (0, -1) => tailPos
-      case (1, 1) | (-1, -1) | (1, -1) | (-1, 1) => tailPos
-      case (2, 0) => (tailPos._1 + 1, tailPos._2)
-      case (-2, 0) => (tailPos._1 - 1, tailPos._2)
-      case (0, 2) => (tailPos._1, tailPos._2 + 1)
-      case (0, -2) => (tailPos._1, tailPos._2 - 1)
-      case (2, 2) | (2, 1) | (1, 2) => (tailPos._1 + 1, tailPos._2 + 1)
-      case (2, -2) | (2, -1) | (1, -2) => (tailPos._1 + 1, tailPos._2 - 1)
-      case (-2, 2) | (-2, 1) | (-1, 2) => (tailPos._1 - 1, tailPos._2 + 1)
-      case (-2, -2) | (-1, -2) | (-2, -1) => (tailPos._1 - 1, tailPos._2 - 1)
+      case (0, 0)                                 => tailPos
+      case (1, 0) | (-1, 0) | (0, 1) | (0, -1)    => tailPos
+      case (1, 1) | (-1, -1) | (1, -1) | (-1, 1)  => tailPos
+      case (2, 0)                                 => (tailPos._1 + 1, tailPos._2)
+      case (-2, 0)                                => (tailPos._1 - 1, tailPos._2)
+      case (0, 2)                                 => (tailPos._1, tailPos._2 + 1)
+      case (0, -2)                                => (tailPos._1, tailPos._2 - 1)
+      case (2, 2) | (2, 1) | (1, 2)               => (tailPos._1 + 1, tailPos._2 + 1)
+      case (2, -2) | (2, -1) | (1, -2)            => (tailPos._1 + 1, tailPos._2 - 1)
+      case (-2, 2) | (-2, 1) | (-1, 2)            => (tailPos._1 - 1, tailPos._2 + 1)
+      case (-2, -2) | (-1, -2) | (-2, -1)         => (tailPos._1 - 1, tailPos._2 - 1)
     }
   }
 
@@ -82,7 +82,7 @@ def main() = {
 
           positions.indices.foreach { i =>
             val newPrecursorPos = if (i == 0) newHeadPos else positions(i-1)
-            // println(s"in knot ${i + 2}. Precursor pos $newPrecursorPos. This pos ${positions(i)}.")
+            //println(s"in knot ${i + 2}. Precursor pos $newPrecursorPos. This pos ${positions(i)}.")
             val newThisPos = getNewPos(newPrecursorPos, positions(i))
             positions(i) = newThisPos
           }
