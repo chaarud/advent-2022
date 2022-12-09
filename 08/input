@@ -1,4 +1,4 @@
-val input = """100021112110202312022010330204312040000111012143445142221414240220240442332040010320133120230011020
+100021112110202312022010330204312040000111012143445142221414240220240442332040010320133120230011020
 111110201332323210211143123214321343332124211413115514155115511033421001222101204330001300333011010
 222100123300231230122203432310224441551434231352112532354252244334410042212441233243220102033110020
 212210311310102334321243104133012535144151532555155341325352512544453402400411340202133231000102020
@@ -96,71 +96,4 @@ val input = """10002111211020231202201033020431204000011101214344514222141424022
 202220203220032000004314434423331253245534454123425114423553133414151232240304414101402311330002020
 012211131001201000134433142021511253314413353152553443443342425435421132024242024214322330313300110
 200011111022120322143342040443334552235435211511231451452222252222113214233002413424112001211130112
-202000213331311222142203242110321123234552545321425122145424451321304200332123042013120323022211012"""
-
-@main
-def main = {
-  def isVisible(rowIdx: Int, colIdx: Int, grid: Array[Array[Int]]): Boolean = {
-    val thisHeight = grid(rowIdx)(colIdx)
-    val (treesToLeft, thisPlusTreesToRight) = grid(rowIdx).splitAt(colIdx)
-    val treesToRight = thisPlusTreesToRight.tail
-    val treesAbove = (0 until rowIdx).map(i => grid(i)(colIdx))
-    val treesBelow = (rowIdx + 1 until grid(0).length).map(i => grid(i)(colIdx))
-
-    val visibleFromRight = treesToRight.forall(_ < thisHeight)
-    val visibleFromLeft = treesToLeft.forall(_ < thisHeight)
-    val visibleFromTop = treesAbove.forall(_ < thisHeight)
-    val visibleFromBottom = treesBelow.forall(_ < thisHeight)
-
-    visibleFromRight || visibleFromLeft || visibleFromTop || visibleFromBottom
-  }
-
-  val grid = input.linesIterator.foldLeft(Array.empty[Array[Int]]) { (grid, line) =>
-    grid.appended(line.map(_.toInt).toArray)
-  }
-
-  val totalVisible = grid.indices.foldLeft(0) { (count, rowIdx) =>
-    grid(0).indices.foldLeft(count) { (count, colIdx) =>
-      if (isVisible(rowIdx, colIdx, grid)) count + 1 else count
-    }
-  }
-
-  println(s"total visible: $totalVisible")
-
-  def getSenicScore(rowIdx: Int, colIdx: Int, grid: Array[Array[Int]]): Int = {
-
-    def countView(myHeight: Int, heights: Seq[Int]): Int = {
-      heights.foldLeft((0, false)) { (state, height) =>
-        val (count, isCountStopping) = state
-        if (isCountStopping) {
-          state
-        } else if (myHeight > height) {
-          (count + 1, false)
-        } else {
-          (count + 1, true)
-        }
-      }._1
-    }
-
-    val thisHeight = grid(rowIdx)(colIdx)
-    val (treesToLeft, thisPlusTreesToRight) = grid(rowIdx).splitAt(colIdx)
-    val treesToRight = thisPlusTreesToRight.tail
-    val treesAbove = (0 until rowIdx).map(i => grid(i)(colIdx))
-    val treesBelow = (rowIdx + 1 until grid(0).length).map(i => grid(i)(colIdx))
-
-    val scoreFromRight = countView(thisHeight, treesToRight)
-    val scoreFromLeft = countView(thisHeight, treesToLeft.reverse)
-    val scoreFromTop = countView(thisHeight, treesAbove.reverse)
-    val scoreFromBottom = countView(thisHeight, treesBelow)
-
-    scoreFromRight * scoreFromLeft * scoreFromTop * scoreFromBottom
-  }
-
-  val maxSenicScore = grid.indices.foldLeft(0) { (maxScore, rowIdx) =>
-    grid(0).indices.foldLeft(maxScore) { (maxScore, colIdx) =>
-      Math.max(getSenicScore(rowIdx, colIdx, grid), maxScore)
-    }
-  }
-
-  println(s"max senic score: $maxSenicScore")
-}
+202000213331311222142203242110321123234552545321425122145424451321304200332123042013120323022211012

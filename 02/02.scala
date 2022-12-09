@@ -2,7 +2,7 @@ import scala.io.Source
 
 @main
 def main() = {
-  val lines = Utils.getLines("02/input")
+  val lines = Util.getLines
 
   def outcomeScore(theirs: Char, mine: Char): Int = {
     (theirs, mine) match {
@@ -46,13 +46,11 @@ def main() = {
   println(s"new score: ${newScore}")
 }
 
-object Utils {
-  def getLines(path: String): Seq[String] = {
-    val bufferedSource = Source.fromFile(s"/Users/chaaru/Desktop/advent-2022/input/$path")
+object Util {
+  def getLines: Seq[String] = {
+    val bufferedSource = Source.fromFile(s"input")
     val lines = bufferedSource.getLines().iterator.to(Seq)
     bufferedSource.close
     lines
   }
 }
-
-

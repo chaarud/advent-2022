@@ -2,7 +2,7 @@ import scala.io.Source
 
 @main
 def main() = {
-  val lines = Utils.getLines("04/input")
+  val lines = Util.getLines
   val pairCount = lines.count { line =>
     val pattern = """(\d+)""".r
     pattern.findAllIn(line).toSeq.map(_.toInt) match {
@@ -46,9 +46,9 @@ def main() = {
   println(s"overlap count: $overlapCount")
 }
 
-object Utils {
-  def getLines(path: String): Seq[String] = {
-    val bufferedSource = Source.fromFile(s"/Users/chaaru/Desktop/advent-2022/input/$path")
+object Util {
+  def getLines: Seq[String] = {
+    val bufferedSource = Source.fromFile(s"input")
     val lines = bufferedSource.getLines().iterator.to(Seq)
     bufferedSource.close
     lines

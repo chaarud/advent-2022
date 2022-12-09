@@ -2,7 +2,7 @@ import scala.io.Source
 
 @main
 def main() = {
-  val lines = Utils.getLines("03/input")
+  val lines = Util.getLines
   val total = lines.foldLeft(0) { (total, line) =>
     val items = line.toCharArray
     val (firstHalf, secondHalf) = items.splitAt(items.size / 2)
@@ -23,9 +23,9 @@ def main() = {
 
 }
 
-object Utils {
-  def getLines(path: String): Seq[String] = {
-    val bufferedSource = Source.fromFile(s"/Users/chaaru/Desktop/advent-2022/input/$path")
+object Util {
+  def getLines: Seq[String] = {
+    val bufferedSource = Source.fromFile(s"input")
     val lines = bufferedSource.getLines().iterator.to(Seq)
     bufferedSource.close
     lines
