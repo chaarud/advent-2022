@@ -2,11 +2,11 @@ import scala.io.Source
 
 @main
 def main(): Unit = {
-  val pattern = """addx (-?\d+)""".r
   val lines = Util.getLines
+  val pattern = """addx (-?\d+)""".r
   val samplePoints = Set(20, 60, 100, 140, 180, 220)
 
-  def doTick(acc: (Int, Int, Int)): Int = {
+  def additionalStrength(acc: (Int, Int, Int)): Int = {
     val (tick, register, _) = acc
     if (samplePoints.contains(tick)) {
       tick * register
@@ -14,14 +14,15 @@ def main(): Unit = {
   }
 
   val signalStrength = lines.foldLeft((1, 1, 0)) { (acc, line) =>
+    val (tick, register, signalStrength) = acc
     line match {
       case pattern(n) =>
-        val s1 = doTick(acc)
-        val afterOneTick = (acc._1 + 1, acc._2, acc._3 + s1)
-        val s2 = doTick(afterOneTick)
-        (afterOneTick._1 + 1, afterOneTick._2 + n.toInt, afterOneTick._3 + s2)
+        val s1 = additionalStrength(acc)
+        val afterOneTick = (tick + 1, register, signalStrength + s1)
+        val s2 = additionalStrength(afterOneTick)
+        (tick + 2, register + n.toInt, signalStrength + s1 + s2)
       case "noop" =>
-        (acc._1 + 1, acc._2, acc._3 + doTick(acc))
+        (tick + 1, register, signalStrength + additionalStrength(acc))
       case l =>
         println(s"could not parse line $l")
         acc
@@ -34,9 +35,9 @@ def main(): Unit = {
     val row = (tick - 1) / 40
     val col = (tick - 1) % 40
     if (col == register || col - 1 == register || col + 1 == register) {
-      screen(row)(col) = "#"
+      screen(row)(col) = "██"
     } else {
-      screen(row)(col) = "."
+      screen(row)(col) = "  "
     }
     screen
   }
