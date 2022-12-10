@@ -1,7 +1,7 @@
 import scala.io.Source
 
 @main
-def main() = {
+def main(): Unit = {
   val lines = Util.getLines
 }
 
