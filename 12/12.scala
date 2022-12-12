@@ -1,6 +1,5 @@
 import scala.io.Source
 import scala.annotation.tailrec
-import scala.util.Random
 
 @main
 def main(): Unit = {
@@ -47,12 +46,16 @@ def main(): Unit = {
         true
     }
 
+  def isStart: Int => Int => Boolean = row => col => row == start._1 && col == start._2
+  val isElevationA: Int => Int => Boolean = row => col => grid(row)(col) == 0
+
   @tailrec
   def recurse(
     start: (Int, Int),
-    queue: List[(Int, Int, Int)]
+    queue: List[(Int, Int, Int)],
+    baseCaseFn: Int => Int => Boolean
   ): Int = queue match {
-    case (row, col, dist) :: _ if row == start._1 && col == start._2 =>
+    case (row, col, dist) :: _ if baseCaseFn(row)(col) =>
       dist
     case (row, col, dist) :: tail =>
       //println(s"traversing ($row, $col)")
@@ -60,7 +63,7 @@ def main(): Unit = {
       val neighbors = List((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1))
       val filteredNeighbors = filterNeighbors(neighbors, height, queue)
       val distancedNeighbors = filteredNeighbors.map(x => (x._1, x._2, dist + 1))
-      recurse(start, tail ++ distancedNeighbors)
+      recurse(start, tail ++ distancedNeighbors, baseCaseFn)
     case _ =>
       println("oops, ran out of queue")
       -1
@@ -68,28 +71,10 @@ def main(): Unit = {
 
   val initialQueue = List((end._1, end._2, 0))
 
-  val shortestPathFromStart = recurse(start, initialQueue)
+  val shortestPathFromStart = recurse(start, initialQueue, isStart)
   println(s"shortest distance from start point: $shortestPathFromStart")
 
-  @tailrec
-  def recurse2(
-    start: (Int, Int),
-    queue: List[(Int, Int, Int)]
-  ): Int = queue match {
-    case (row, col, dist) :: _ if grid(row)(col) == 0 =>
-      dist
-    case (row, col, dist) :: tail =>
-      val height = grid(row)(col)
-      val neighbors = List((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1))
-      val filteredNeighbors = filterNeighbors(neighbors, height, queue)
-      val distancedNeighbors = filteredNeighbors.map(x => (x._1, x._2, dist + 1))
-      recurse2(start, tail ++ distancedNeighbors)
-    case _ =>
-      println("oops, ran out of queue")
-      -1
-  }
-
-  val shortestPathToA = recurse2(start, initialQueue)
+  val shortestPathToA = recurse(start, initialQueue, isElevationA)
   println(s"shortest distance from end to elevation a: $shortestPathToA")
 }
 
