@@ -50,12 +50,9 @@ def main(): Unit = {
   @tailrec
   def recurse(
     start: (Int, Int),
-    queue: List[(Int, Int, Int)],
-    minDistSoFar: Int
+    queue: List[(Int, Int, Int)]
   ): Int = queue match {
     case (row, col, dist) :: _ if row == start._1 && col == start._2 =>
-      dist
-    case (_, _, dist) :: _ if dist >= minDistSoFar =>
       dist
     case (row, col, dist) :: tail =>
       //println(s"traversing ($row, $col)")
@@ -63,7 +60,7 @@ def main(): Unit = {
       val neighbors = List((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1))
       val filteredNeighbors = filterNeighbors(neighbors, height, queue)
       val distancedNeighbors = filteredNeighbors.map(x => (x._1, x._2, dist + 1))
-      recurse(start, tail ++ distancedNeighbors, minDistSoFar)
+      recurse(start, tail ++ distancedNeighbors)
     case _ =>
       println("oops, ran out of queue")
       -1
@@ -71,22 +68,29 @@ def main(): Unit = {
 
   val initialQueue = List((end._1, end._2, 0))
 
-  val shortestPathFromStart = recurse(start, initialQueue, Int.MaxValue)
+  val shortestPathFromStart = recurse(start, initialQueue)
   println(s"shortest distance from start point: $shortestPathFromStart")
 
-  val startCandidates = grid.indices.foldLeft(List.empty[(Int, Int)]) { (acc, rowIdx) =>
-    grid(0).indices.foldLeft(acc) { (acc, colIdx) =>
-      if (grid(rowIdx)(colIdx) == 0) (rowIdx, colIdx) :: acc else acc
-    }
+  @tailrec
+  def recurse2(
+    start: (Int, Int),
+    queue: List[(Int, Int, Int)]
+  ): Int = queue match {
+    case (row, col, dist) :: _ if grid(row)(col) == 0 =>
+      dist
+    case (row, col, dist) :: tail =>
+      val height = grid(row)(col)
+      val neighbors = List((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1))
+      val filteredNeighbors = filterNeighbors(neighbors, height, queue)
+      val distancedNeighbors = filteredNeighbors.map(x => (x._1, x._2, dist + 1))
+      recurse2(start, tail ++ distancedNeighbors)
+    case _ =>
+      println("oops, ran out of queue")
+      -1
   }
 
-  val minDist = Random.shuffle(startCandidates).zipWithIndex.foldLeft(shortestPathFromStart) { (minDistSoFar, elem) =>
-    val (candidate, i) = elem
-    val thisDistance = recurse(candidate, initialQueue, minDistSoFar)
-    println(s"recursed candidate ${i+1} of ${startCandidates.length} and got path of length $thisDistance")
-    if (thisDistance < minDistSoFar) thisDistance else minDistSoFar
-  }
-  println(s"minimum: $minDist")
+  val shortestPathToA = recurse2(start, initialQueue)
+  println(s"shortest distance from end to elevation a: $shortestPathToA")
 }
 
 object Util {
