@@ -1,6 +1,22 @@
 import scala.io.Source
 import scala.annotation.tailrec
 
+// Note for part 1:
+// My solution was initially buggy, I kept getting answers in a small-ish range that were wrong. My wrong answers:
+// 5531 too low
+// 5532 wrong
+// 5610 too low
+// 5687 too high
+// 5796 wrong
+//
+// I eventually looked on reddit and compared my answers with the code provided by this commenter:
+//   https://www.reddit.com/r/adventofcode/comments/zkmyh4/2022_day_13_solutions/j044j5n/
+//   linked to this gist: https://gist.github.com/dougdonohoe/b15646fa7c801ea8f4c3a8a264dfce52
+// and discovered that my code was evaluating a single input (out of 150) incorrectly.
+// The above solution is totally different from mine, so I had to look for the bug and fix it.
+// The fix was replacing ::: with :: where you see `ls :: leftRemainders, rs :: rightRemainders` below
+//
+// I didn't need to use any help for part 2.
 @main
 def main(): Unit = {
   val lines = Util.getLines
@@ -34,34 +50,12 @@ def main(): Unit = {
     }
   }
 
-  def parseList(str: String): List[Any] = {
-    nextElement(str, Nil).head.asInstanceOf[List[Any]]
-  }
+  def parseList(str: String): List[Any] = nextElement(str, Nil).head.asInstanceOf[List[Any]]
 
-//  println(parseList("[]"))
-//  println(parseList("[[]]"))
-//  println(parseList("[[3]]"))
-//  println(parseList("[3,4,5,6]"))
-//  println(parseList("[[3,4],[5,6]]"))
-//  println(parseList("[[[2,5,[9],[],8],1,2,2,0],[],[]]"))
-//  println(parseList("[[[2,5,[9],[],8],10,2,2,0],[],[]]"))
-
+  @tailrec
   def isOrdered(l1: List[Any], l2: List[Any], leftRemainders: List[Any], rightRemainders: List[Any]): Boolean = {
     //println(s"evaluating isOrdered: $l1 and $l2")
     (l1, l2) match {
-      case (l :: Nil, r :: Nil) =>
-        (l, r) match {
-          case (left: Int, right: Int) =>
-            if (left < right) true
-            else if (right < left) false
-            else isOrdered(leftRemainders, rightRemainders, Nil, Nil)
-          case (left: List[_], right: Int) =>
-            isOrdered(left, List(right), leftRemainders, rightRemainders)
-          case (left: Int, right: List[_]) =>
-            isOrdered(List(left), right, leftRemainders, rightRemainders)
-          case (left: List[_], right: List[_]) =>
-            isOrdered(left, right, leftRemainders, rightRemainders)
-        }
       case (l :: ls, r :: rs) =>
         (l, r) match {
           case (left: Int, right: Int) =>
@@ -77,8 +71,7 @@ def main(): Unit = {
         }
       case (Nil, _ :: _) => true
       case (_ :: _, Nil) => false
-      case (Nil, Nil) =>
-        isOrdered(leftRemainders, rightRemainders, Nil, Nil)
+      case (Nil, Nil) => isOrdered(leftRemainders, rightRemainders, Nil, Nil)
     }
   }
 
@@ -93,27 +86,9 @@ def main(): Unit = {
   }
   println(s"answer: $answer")
 
-  // Note for part 1:
-  // My solution was initially buggy, I kept getting answers in a small-ish range that were wrong. My wrong answers:
-  // 5531 too low
-  // 5532 wrong
-  // 5610 too low
-  // 5687 too high
-  // 5796 wrong
-  //
-  // I eventually looked on reddit and compared my answers with the code provided by this commenter:
-  //   https://www.reddit.com/r/adventofcode/comments/zkmyh4/2022_day_13_solutions/j044j5n/
-  //   linked to this gist: https://gist.github.com/dougdonohoe/b15646fa7c801ea8f4c3a8a264dfce52
-  // and discovered that my code was evaluating a single input (out of 150) incorrectly.
-  // The above solution is totally different from mine, so I had to look for the bug and fix it.
-  // The fix was replacing ::: with :: where you see `ls :: leftRemainders, rs :: rightRemainders` above
-  //
-  // I didn't need to use any help for part 2.
-
   val answerWithDecoders = {
-    val decoder1 = "[[2]]"
-    val decoder2 = "[[6]]"
-    val augmentedInput = lines :+ decoder1 :+ decoder2
+    val decoders = List("[[2]]", "[[6]]")
+    val augmentedInput = lines ++ decoders
     val sorted = augmentedInput.filterNot(_.isBlank).sortWith { (s1, s2) =>
       val l1: List[Any] = parseList(s1)
       val l2: List[Any] = parseList(s2)
@@ -121,7 +96,7 @@ def main(): Unit = {
       result
     }
     //println(sorted.mkString("\n"))
-    (sorted.indexOf(decoder1) + 1) * (sorted.indexOf(decoder2) + 1)
+    decoders.map(decoder => sorted.indexOf(decoder) + 1).product
   }
   println(s"answer with decoders: $answerWithDecoders")
 }
