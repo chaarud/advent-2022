@@ -1,4 +1,4 @@
-Notes/caveats (started on day 13):
+Notes/caveats
 
 - Day 11, Part 2: I had to look on reddit for the "trick" to keep the worry values from overflowing
 - Day 13, Part 1: This was really a pain, both parsing the input and deciding the ordering. The input parsing alone took 
