@@ -11,8 +11,6 @@ def main(): Unit = {
       val foundIdx = mixedNumbers.indexOf(packageToMix)
       val finalIdx = if (foundIdx + numberToMix >= 0 && foundIdx + numberToMix < N) {
         foundIdx + numberToMix
-      } else if (numberToMix == 0) {
-        foundIdx
       } else if (numberToMix > 0) {
         (foundIdx + numberToMix) % (N - 1)
       } else {
